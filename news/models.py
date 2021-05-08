@@ -7,11 +7,20 @@ class Category(models.Model):
     in_menu = models.BooleanField(default=True)
     order = models.IntegerField(default=1)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+
 
 class Author(models.Model):
     name = models.TextField(max_length=255)
     bio = models.TextField(max_length=255)
     avatar = models.ImageField()
+
+    def __str__(self):
+        return self.name
 
 
 class Article(models.Model):
@@ -27,6 +36,9 @@ class Article(models.Model):
         То есть при такой связи тот, у которого указывается, он зависит от того, на которого ссылается. 
     """
 
+    def __str__(self):
+        return self.name
+
 
 class Comment(models.Model):
     name = models.CharField(max_length=100)
@@ -34,6 +46,9 @@ class Comment(models.Model):
     website = models.CharField(max_length=255)
     comment = models.TextField()
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.comment[:10]
 
 
 class Newsletter(models.Model):
@@ -45,8 +60,14 @@ class Newsletter(models.Model):
     null=True, blank=True - чтобы пустое было изначально
     """
 
+    def __str__(self):
+        return self.email
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
     articles = models.ManyToManyField(Article)
+
+    def __str__(self):
+        return self.name
