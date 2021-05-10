@@ -17,7 +17,7 @@ class Category(models.Model):
 class Author(models.Model):
     name = models.TextField(max_length=255)
     bio = models.TextField(max_length=255)
-    avatar = models.ImageField()
+    avatar = models.ImageField(upload_to='avatars')
 
     def __str__(self):
         return self.name
@@ -28,7 +28,7 @@ class Article(models.Model):
     slug = models.SlugField(max_length=255)
     content = models.TextField()
     short_description = models.TextField()
-    main_image = models.ImageField()
+    main_image = models.ImageField(upload_to='images')
     pub_date = models.DateField(auto_now_add=True)
     categories = models.ManyToManyField(Category)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)

@@ -30,4 +30,8 @@ urlpatterns = [
     path('robots.txt', views.robots_handler),
     path('', views.index_handler),
     path('__debug__/', include(debug_toolbar.urls)),
+    path('summernote/', include('django_summernote.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
