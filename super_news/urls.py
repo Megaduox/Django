@@ -22,7 +22,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('polls/', include('polls.urls')),
     path('admin/', admin.site.urls),
     path('blog/', views.blog_handler),
     path('single/', views.single_handler),
