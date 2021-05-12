@@ -2,10 +2,18 @@ import requests
 import os
 import datetime
 
+from django.db.utils import IntegrityError
+
+from concurrent.futures import ThreadPoolExecutor
+
 from slugify import slugify
 from requests_html import HTMLSession
-
 from bs4 import BeautifulSoup
+
+from news.models import Article, Author, Category
+
+# Author has id=2
+author = Author.objects.get(id=2)
 
 
 def check_for_redirect(response_check):
@@ -28,10 +36,10 @@ def parse_urls(root_url):
 
 
 def parse_one_page(url):
-    # domain = f'https://www.thedrive.com{url}'
+    domain = f'https://www.thedrive.com{url}'
     content = list()
     with HTMLSession() as session:
-        response = session.get(url)
+        response = session.get(domain)
         check_for_redirect(response)
         response.raise_for_status()
     soup = BeautifulSoup(response.text, 'lxml')
@@ -42,45 +50,63 @@ def parse_one_page(url):
     content.append(content_table)
     short_description = soup.find('div', class_='review-intro').text
     pub_date = soup.find('div', class_='review-date').text.split('\xa0')[1].strip()
-    datetime_obj = datetime.datetime.strptime(pub_date, '%b %d, %Y')
-    author = 'Thedrive review team'
+    datetime_obj = datetime.datetime.strptime(pub_date, '%B %d, %Y')
+    # author = 'Thedrive review team'
     categories = [
         {
             'name': 'reviews',
             'slug': 'reviews'
+        },
+        {
+            'name': 'best',
+            'slug': 'best'
         }
     ]
     main_image = soup.find('div', class_='review-product-image').find('img')['src']
     image_name = slugify(name)
-    image_type = main_image.split('.')[-1]
+    image_type = main_image.split('.')[-1][:3]
+    print(image_type)
     image_path = os.path.join('media', 'images', f'{image_name}.{image_type}')
     with open(image_path, 'wb') as file:
         with HTMLSession() as session:
             response = session.get(main_image)
             file.write(response.content)
     slug = slugify(name)
-
-    breakpoint()
     article = {
         'name': name,
         'content': content,
         'short_description': short_description,
         'pub_date': datetime_obj.date(),
         'author': author,
-        'categories': categories,
         'main_image': image_path,
         'slug': slug
     }
 
+    # такой код работает
+    try:
+        article = Article(**article)
+        article.save()
+    except IntegrityError:
+        article = Article.objects.get(slug=slug)
+        print('Такая статья уже есть в базе')
+
+    # По коду ниже ошибка "'NoneType' object is not callable"
+    #
+    # article, created = Article.objects.get_or_create(**article)
+    #
+    for category in categories:
+        cat, created = Category.objects.get_or_create(**category)
+        article.categories.add(cat)
+
     return article
 
-'''
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255)
-    content = models.TextField()
-    short_description = models.TextField()
-    main_image = models.ImageField(upload_to='images')
-    pub_date = models.DateField(auto_now_add=True)
-    categories = models.ManyToManyField(Category)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-'''
+
+def main():
+    # for url in parse_urls('https://www.thedrive.com/reviews'):
+    #     print('Парсим урл:', url)
+    #     print(parse_one_page(url))
+    all_urls = parse_urls('https://www.thedrive.com/reviews')
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        executor.map(parse_one_page, all_urls)
+
+    # Article.objects.all().delete()

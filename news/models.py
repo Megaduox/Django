@@ -3,9 +3,11 @@ from django.db import models
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
     in_menu = models.BooleanField(default=True)
     order = models.IntegerField(default=1)
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
@@ -19,13 +21,15 @@ class Author(models.Model):
     bio = models.TextField(max_length=255)
     avatar = models.ImageField(upload_to='avatars')
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.name
 
 
 class Article(models.Model):
     name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
     content = models.TextField()
     short_description = models.TextField()
     main_image = models.ImageField(upload_to='images')
@@ -35,6 +39,8 @@ class Article(models.Model):
     """ author связан со статьёй, если удалить автора, то и статья удляется.
         То есть при такой связи тот, у которого указывается, он зависит от того, на которого ссылается. 
     """
+
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
@@ -52,7 +58,7 @@ class Comment(models.Model):
 
 
 class Newsletter(models.Model):
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     subscribe_date = models.DateTimeField(auto_now_add=True)
     unsubscribe_date = models.DateTimeField(null=True, blank=True)
@@ -66,7 +72,7 @@ class Newsletter(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
     articles = models.ManyToManyField(Article)
 
     def __str__(self):
