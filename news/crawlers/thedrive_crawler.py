@@ -12,9 +12,6 @@ from bs4 import BeautifulSoup
 
 from news.models import Article, Author, Category
 
-# Author has id=2
-author = Author.objects.get(id=2)
-
 
 def check_for_redirect(response_check):
     if response_check.history:
@@ -44,6 +41,7 @@ def parse_one_page(url):
         response.raise_for_status()
     soup = BeautifulSoup(response.text, 'lxml')
     name = soup.find('h1', class_='title').text
+    print(name)
     content_intro = soup.find('div', class_='review-intro')
     content.append(content_intro)
     content_table = soup.find('div', class_='articleFragment')
@@ -51,7 +49,9 @@ def parse_one_page(url):
     short_description = soup.find('div', class_='review-intro').text
     pub_date = soup.find('div', class_='review-date').text.split('\xa0')[1].strip()
     datetime_obj = datetime.datetime.strptime(pub_date, '%B %d, %Y')
-    # author = 'Thedrive review team'
+    author, is_author_created = Author.objects.get_or_create(
+        name='Thedrive review team'
+    )
     categories = [
         {
             'name': 'reviews',
@@ -65,7 +65,6 @@ def parse_one_page(url):
     main_image = soup.find('div', class_='review-product-image').find('img')['src']
     image_name = slugify(name)
     image_type = main_image.split('.')[-1][:3]
-    print(image_type)
     image_path = os.path.join('media', 'images', f'{image_name}.{image_type}')
     with open(image_path, 'wb') as file:
         with HTMLSession() as session:
@@ -77,7 +76,7 @@ def parse_one_page(url):
         'content': content,
         'short_description': short_description,
         'pub_date': datetime_obj.date(),
-        'author': author,
+        'author': author.name,
         'main_image': image_path,
         'slug': slug
     }
