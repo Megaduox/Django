@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from news.models import Article
+from news.models import Category
+from django.db.models import Count
 
 
 def contacts_handler(request):
@@ -7,16 +10,30 @@ def contacts_handler(request):
 
 
 def index_handler(request):
-    context = {}
+    top_10_articles = Article.objects.all().order_by('-pub_date')[:10].prefetch_related('categories')
+    cat_list = Category.objects.annotate(count=Count('article__id')).order_by('-count')[:5]
+    context = {
+        'top_10_articles': top_10_articles,
+        'menu_categories': cat_list,
+    }
+
     return render(request, 'news/index.html', context)
 
 
-def single_handler(request):
+def single_handler(request, slug):
     context = {}
     return render(request, 'news/single.html', context)
 
 
 def blog_handler(request):
+    top_10_articles = Article.objects.all().order_by('-pub_date')[:10].prefetch_related('categories')
+    context = {
+        'top_10_articles': top_10_articles,
+    }
+    return render(request, 'news/blog.html', context)
+
+
+def cat_handler(request, slug):
     context = {}
     return render(request, 'news/blog.html', context)
 
