@@ -1,11 +1,24 @@
 {% extends 'news/base.html' %}
 {% load static %}
         {% block content %}
-            {% include 'news/parts/h1_and_breadcrumbs.html' %}
+        <div class="page-title lb single-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                            {% if category %}
+                            <h2><i class="fa fa-star bg-orange"></i>{{ category.name|title }} category<small class="hidden-xs-down hidden-sm-down">Nulla felis eros, varius sit amet volutpat non. </small></h2>
+                            {% else %}
+                            <h2><i class="fa fa-star bg-orange"></i>Reviews<small class="hidden-xs-down hidden-sm-down">Nulla felis eros, varius sit amet volutpat non. </small></h2>
+                            {% endif %}
+                    </div><!-- end col -->
+                    {% include 'news/parts/breadcrumbs.html' %}
+                </div><!-- end row -->
+            </div><!-- end container -->
+        </div><!-- end page-title -->
 
         <section class="section">
             <div class="container">
-                <div class="row">
+                <div clasReviews s="row">
                     <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
                         <div class="page-wrapper">
                             <div class="blog-list clearfix">
@@ -14,7 +27,7 @@
                                     <div class="col-md-4">
                                         <div class="post-media">
                                             <a href="tech-single.html" title="">
-                                                <img src="{{ article.url }}" alt="" class="img-fluid">
+                                                <img src="{{ article.main_image.url }}" alt="" class="img-fluid">
                                                 <div class="hovereffect"></div>
                                             </a>
                                         </div><!-- end media -->
@@ -23,7 +36,7 @@
                                     <div class="blog-meta big-meta col-md-8">
                                         <h4><a href="{% url 'article' article.slug %}" title="">{{ article.name }}</a></h4>
                                         <p>{{ article.short_description|truncatewords:30 }}</p>
-                                        <small class="firstsmall"><a class="bg-orange" href="{% url 'category' article.categories.all.0.slug %}" title="">{{ article.categories.all.0 }}</a></small>
+                                        <small class="firstsmall"><a class="bg-orange" href="{% url 'category' article.categories.first.slug %}" title="">{{ article.categories.first|title }}</a></small>
                                         <small>{{ article.pub_date }}</small>
                                         <small>by {{ article.author }}</small>
                                         <small><a href="{% url 'article' article.slug %}" title=""><i class="fa fa-eye"></i> Unique words {{ article.count_unique_words }}</a></small>

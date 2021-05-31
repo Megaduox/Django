@@ -56,7 +56,10 @@ class AuthorAdmin(admin.ModelAdmin):
 
     # тут тоже не работают картинки, т.к. в пути media 2 раза, я пробовал переопределять - не удалось починить
     def ava(self, object):
-        return format_html('<img src="{}" style="max-width:30px">', object.avatar.url)
+        if object.avatar.url:
+            return format_html('<img src="{}" style="max-width:30px">', object.avatar.url)
+        else:
+            return None
 
 
 class CategoryAdmin(admin.ModelAdmin):

@@ -65,18 +65,24 @@ def parse_one_page(url):
     main_image = soup.find('div', class_='review-product-image').find('img')['src']
     image_name = slugify(name)
     image_type = main_image.split('.')[-1][:3]
-    image_path = os.path.join('media', 'images', f'{image_name}.{image_type}')
-    with open(image_path, 'wb') as file:
+    # image_path = os.path.join('media', 'images', f'{image_name}.{image_type}')
+    # with open(image_path, 'wb') as file:
+    #     with HTMLSession() as session:
+    #         response = session.get(main_image)
+    #         file.write(response.content)
+    image_path = f'images/{image_name}.{image_type}'
+    with open(f'media/{image_path}', 'wb') as f:
         with HTMLSession() as session:
             response = session.get(main_image)
-            file.write(response.content)
+        f.write(response.content)
+
     slug = slugify(name)
     article = {
         'name': name,
         'content': content,
         'short_description': short_description,
-        'pub_date': datetime_obj.date(),
-        'author': author.name,
+        'pub_date': datetime_obj,
+        'author': author,
         'main_image': image_path,
         'slug': slug
     }

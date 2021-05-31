@@ -19,8 +19,8 @@ class Category(models.Model):
 
 class Author(models.Model):
     name = models.TextField(max_length=255)
-    bio = models.TextField(max_length=255)
-    avatar = models.ImageField(upload_to='avatars')
+    bio = models.TextField(max_length=255, blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars', max_length=255, blank=True, null=True)
 
     objects = models.Manager()
 

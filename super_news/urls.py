@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('blog/', views.blog_handler, name='blog'),
-    path('<cat_slug>', views.cat_handler, name='category'),
+    path('category/<cat_slug>', views.cat_handler, name='category'),
 
     # path('single/<post_slug>', views.single_handler, name='single'),
     path('post/<post_slug>', views.single_handler, name='article'),
