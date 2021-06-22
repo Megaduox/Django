@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from news.models import Article, Category
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
 
 
 def contacts_handler(request):
@@ -36,9 +37,15 @@ def single_handler(request, post_slug):
 
 
 def blog_handler(request):
-    top_10_articles = Article.objects.all().order_by('-pub_date')[:10].prefetch_related('categories')
+    current_page = int(request.GET.get('page', 1))
+    articles_on_page = 5
+    top_10_articles = Article.objects.all().order_by('-pub_date').prefetch_related('categories')
+    paginator = Paginator(top_10_articles, articles_on_page)
+    page_obj = paginator.get_page(current_page)
     context = {
         'top_10_articles': top_10_articles,
+        'page_obj': page_obj,
+        'paginator': paginator
     }
     return render(request, 'news/blog.html', context)
 

@@ -22,7 +22,7 @@
                     <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
                         <div class="page-wrapper">
                             <div class="blog-list clearfix">
-                                {% for article in top_10_articles %}
+                                {% for article in page_obj %}
                                 <div class="blog-box row">
                                     <div class="col-md-4">
                                         <div class="post-media">
@@ -53,18 +53,7 @@
                         <hr class="invis">
 
                         <div class="row">
-                            <div class="col-md-12">
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination justify-content-start">
-                                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">Next</a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div><!-- end col -->
+                            {% include 'news/parts/pagination.html' %}
                         </div><!-- end row -->
                     </div><!-- end col -->
 
