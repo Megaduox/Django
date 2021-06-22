@@ -28,12 +28,17 @@ def get_fresh_news(modeladmin, request, queryset):
 get_fresh_news.short_description = 'Get fresh news'
 
 
+class CommentArticleInline(admin.TabularInline):
+    model = Comment
+
+
 class ArticleAdmin(SummernoteModelAdmin):
     summernote_fields = ('content', 'short_description')
     list_display = ('name', 'image_code', 'pub_date', 'slug', 'my_func', 'content_words_count', 'count_unique_words')
     list_filter = ('author', 'pub_date', 'categories')
     search_fields = ('name', 'author')
     actions = (count_words, )
+    inlines = (CommentArticleInline, )
 
     # не отображаются картинки, потому что в урл два раза /media/, не удалось исправить
     def image_code(self, object):

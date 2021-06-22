@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from news.models import Article, Category
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def contacts_handler(request):
@@ -17,7 +18,20 @@ def index_handler(request):
 
 
 def single_handler(request, post_slug):
-    context = {}
+    main_article = Article.objects.get(slug=post_slug)
+    try:
+        prev_article = Article.objects.get(id=main_article.id-1)
+    except ObjectDoesNotExist:
+        prev_article = None
+    try:
+        next_article = Article.objects.get(id=main_article.id+1)
+    except ObjectDoesNotExist:
+        next_article = None
+    article = Article.objects.get(slug=post_slug)
+    context = {'article': article,
+               'next_article': next_article,
+               'prev_article': prev_article
+               }
     return render(request, 'news/single.html', context)
 
 
