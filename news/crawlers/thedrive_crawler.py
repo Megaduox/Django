@@ -1,6 +1,7 @@
 import requests
 import os
 import datetime
+import json
 
 from django.db.utils import IntegrityError
 
@@ -47,8 +48,10 @@ def parse_one_page(url):
     content_table = soup.find('div', class_='articleFragment')
     content.append(content_table)
     short_description = soup.find('div', class_='review-intro').text
-    pub_date = soup.find('div', class_='review-date').text.split('\xa0')[1].strip()
-    datetime_obj = datetime.datetime.strptime(pub_date, '%B %d, %Y')
+    script = soup.find('script', type='application/ld+json')
+    data = json.loads(soup.find('script', type='application/ld+json').next)
+    pub_date = data[0]['datePublished'].split('T')[0]
+    datetime_obj = datetime.datetime.strptime(pub_date, '%Y-%m-%d')
     author, is_author_created = Author.objects.get_or_create(
         name='Thedrive review team'
     )
@@ -110,9 +113,9 @@ def main():
     # for url in parse_urls('https://www.thedrive.com/reviews'):
     #     print('Парсим урл:', url)
     #     print(parse_one_page(url))
-    all_urls = parse_urls('https://www.thedrive.com/reviews')
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        executor.map(parse_one_page, all_urls)
+    # all_urls = parse_urls('https://www.thedrive.com/reviews')
+    # with ThreadPoolExecutor(max_workers=10) as executor:
+    #     executor.map(parse_one_page, all_urls)
 
     # Article.objects.all().delete()
-    
+    parse_one_page('/reviews/27479/best-obd2-scanner')
