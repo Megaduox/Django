@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from news.models import Article, Category
+from news.models import Article, Category, Comment
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 
@@ -20,6 +20,14 @@ def index_handler(request):
 
 def single_handler(request, post_slug):
     main_article = Article.objects.get(slug=post_slug)
+
+    if request.method == 'POST':
+        data = {x[0]: x[1] for x in request.POST.items()}
+        data.pop('csrfmiddlewaretoken')
+        data['article'] = main_article
+
+        Comment.objects.create(**data)
+
     try:
         prev_article = Article.objects.get(id=main_article.id-1)
     except ObjectDoesNotExist:
