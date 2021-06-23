@@ -1,7 +1,10 @@
 from django.shortcuts import render
-from news.models import Article, Category, Comment
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from django.contrib import messages
+
+from news.models import Article, Category, Comment
+from news.forms import CommentsForm
 
 
 def contacts_handler(request):
@@ -20,13 +23,17 @@ def index_handler(request):
 
 def single_handler(request, post_slug):
     main_article = Article.objects.get(slug=post_slug)
-
     if request.method == 'POST':
-        data = {x[0]: x[1] for x in request.POST.items()}
-        data.pop('csrfmiddlewaretoken')
-        data['article'] = main_article
-
-        Comment.objects.create(**data)
+        form = CommentsForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            data['article'] = main_article
+            Comment.objects.create(**data)
+            form = CommentsForm()
+        else:
+            messages.add_message(request, messages.INFO, 'Form not valid')
+    else:
+        form = CommentsForm()
 
     try:
         prev_article = Article.objects.get(id=main_article.id-1)
@@ -39,7 +46,8 @@ def single_handler(request, post_slug):
     article = Article.objects.get(slug=post_slug)
     context = {'article': article,
                'next_article': next_article,
-               'prev_article': prev_article
+               'prev_article': prev_article,
+               'form': form
                }
     return render(request, 'news/single.html', context)
 
