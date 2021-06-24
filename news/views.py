@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.contrib import messages
 
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView
 
 from news.models import Article, Category, Comment
 from news.forms import CommentsForm
@@ -20,6 +20,43 @@ class IndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['top_10_articles'] = Article.objects.all().order_by('-pub_date')[:10].prefetch_related('categories')
         return context
+
+
+class SingleDetailView(DetailView):
+    template_name = 'news/single.html'
+    model = Article
+    slug_url_kwarg = 'post_slug'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            prev_article = Article.objects.get(id=self.object.id-1)
+        except ObjectDoesNotExist:
+            prev_article = None
+        try:
+            next_article = Article.objects.get(id=self.object.id+1)
+        except ObjectDoesNotExist:
+            next_article = None
+
+        context['prev_article'] = prev_article
+        context['next_article'] = next_article
+        return context
+
+    def post(self, request, *args, **kwargs):
+
+        self.object = self.get_object()
+
+        form = CommentsForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            data['article'] = self.object
+            Comment.objects.create(**data)
+            form = CommentsForm()
+
+        context = self.get_context_data()
+        context['form'] = form
+        
+        return self.render_to_response(context)
 
 
 def single_handler(request, post_slug):

@@ -27,7 +27,7 @@ urlpatterns = [
     path('category/<cat_slug>', views.BlogView.as_view(), name='category'),
 
     # path('single/<post_slug>', views.single_handler, name='single'),
-    path('post/<post_slug>', views.single_handler, name='article'),
+    path('post/<post_slug>', views.SingleDetailView.as_view(), name='article'),
 
     path('contacts/', views.ContactView.as_view(), name='contacts'),
     path('robots.txt', views.RobotsView.as_view()),
