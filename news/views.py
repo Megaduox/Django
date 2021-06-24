@@ -3,22 +3,23 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.contrib import messages
 
+from django.views.generic import TemplateView, ListView
+
 from news.models import Article, Category, Comment
 from news.forms import CommentsForm
 
 
-def contacts_handler(request):
-    context = {}
-    return render(request, 'news/contacts.html', context)
+class ContactView(TemplateView):
+    template_name = "news/contacts.html"
 
 
-def index_handler(request):
-    top_10_articles = Article.objects.all().order_by('-pub_date')[:10].prefetch_related('categories')
-    context = {
-        'top_10_articles': top_10_articles,
-    }
+class IndexView(TemplateView):
+    template_name = "news/index.html"
 
-    return render(request, 'news/index.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['top_10_articles'] = Article.objects.all().order_by('-pub_date')[:10].prefetch_related('categories')
+        return context
 
 
 def single_handler(request, post_slug):
@@ -52,31 +53,26 @@ def single_handler(request, post_slug):
     return render(request, 'news/single.html', context)
 
 
-def blog_handler(request):
-    current_page = int(request.GET.get('page', 1))
-    articles_on_page = 5
-    top_10_articles = Article.objects.all().order_by('-pub_date').prefetch_related('categories')
-    paginator = Paginator(top_10_articles, articles_on_page)
-    page_obj = paginator.get_page(current_page)
-    context = {
-        'top_10_articles': top_10_articles,
-        'page_obj': page_obj,
-        'paginator': paginator
-    }
-    return render(request, 'news/blog.html', context)
+class BlogView(ListView):
+    template_name = "news/blog.html"
+    model = Article
+    ordering = "-pub_date"
+    paginate_by = 5
+
+    def get_queryset(self):
+        self.cat_slug = self.kwargs.get('cat_slug')
+        qs = super().get_queryset()
+        if self.cat_slug:
+            qs = qs.filter(categories__slug=self.cat_slug)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.cat_slug:
+            context['category'] = Category.objects.get(slug=self.cat_slug)
+        return context
 
 
-def cat_handler(request, cat_slug):
-    category = Category.objects.get(slug=cat_slug)
-    top_10_articles = Article.objects.filter(
-        categories__slug=cat_slug).order_by('-pub_date')[:10].prefetch_related('categories')
-    context = {
-        'top_10_articles': top_10_articles,
-        'category': category,
-    }
-    return render(request, 'news/blog.html', context)
-
-
-def robots_handler(request):
-    context = {}
-    return render(request, 'news/robots.txt', context, content_type='text/plain')
+class RobotsView(TemplateView):
+    template_name = "news/robots.txt"
+    content_type = "text/plain"

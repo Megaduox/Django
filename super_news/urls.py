@@ -23,15 +23,15 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('blog/', views.blog_handler, name='blog'),
-    path('category/<cat_slug>', views.cat_handler, name='category'),
+    path('blog/', views.BlogView.as_view(), name='blog'),
+    path('category/<cat_slug>', views.BlogView.as_view(), name='category'),
 
     # path('single/<post_slug>', views.single_handler, name='single'),
     path('post/<post_slug>', views.single_handler, name='article'),
 
-    path('contacts/', views.contacts_handler, name='contacts'),
-    path('robots.txt', views.robots_handler),
-    path('', views.index_handler, name='homepage'),
+    path('contacts/', views.ContactView.as_view(), name='contacts'),
+    path('robots.txt', views.RobotsView.as_view()),
+    path('', views.IndexView.as_view(), name='homepage'),
     path('__debug__/', include(debug_toolbar.urls)),
     path('summernote/', include('django_summernote.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
