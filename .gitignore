@@ -139,3 +139,5 @@ cython_debug/
 
 # My directories
 .idea
+/static-root/
+*.env

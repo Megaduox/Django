@@ -29,3 +29,5 @@ tqdm==4.60.0
 urllib3==1.26.4
 w3lib==1.22.0
 websockets==8.1
+psycopg2-binary
+gunicorn
