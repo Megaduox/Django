@@ -8,7 +8,8 @@ services:
       - "80:80"
     volumes:
       - ./web_app/static_root:/code/static_root
-      - ./web_app/medif:/code/media
+      - ./web_app/media:/code/media
+      - ./nginx/logs:/var/log/nginx
     depends_on:
       - web
 
